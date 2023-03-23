@@ -1,12 +1,7 @@
-import gql from 'graphql-tag';
-import {useQuery} from '@apollo/react-hooks';
-import { Card, ResourceList, Stack, TextStyle, Thumbnail } from '@shopify/polaris';
+import {gql} from 'graphql-tag';
+// import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import store from 'store-js';
-import ApolloClient from "apollo-boost";
-import Index from '../pages';
-
-
-
 
 const GET_PRODUCTS_BY_ID =  gql`
 query getProducts($ids: [ID!]!){
@@ -36,13 +31,29 @@ query getProducts($ids: [ID!]!){
   }
 `
 
-
 function ProductList(){
+  const {loading, error, data} = useQuery(GET_PRODUCTS_BY_ID, {variables: {id: store.get('ids')}})
+
+  if(loading) return<div>Loading....</div>
+  if(error)  return <div>{error.message}</div>
+
+console.log("data ========",data);
     return(
         <div>
             <h1>Hello i am keyur bavishi</h1>
+
+              {/* {
+              data.node.map(item=>{
+                return(
+                  <p key={item.id}>{item.title}</p>
+                )
+              })
+            } */}
         </div>
     )
 }
 
 export default ProductList;
+
+
+

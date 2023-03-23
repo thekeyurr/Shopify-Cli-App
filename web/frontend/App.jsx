@@ -1,8 +1,10 @@
 import { BrowserRouter } from "react-router-dom";
 import { NavigationMenu } from "@shopify/app-bridge-react";
 import Routes from "./Routes";
+// import ApolloClient from '  ';
+// import { ApolloProvider } from '@apollo/react-hooks';
+import { ApolloProvider } from "@apollo/client";
 import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from "react-apollo";
 
 
 const client = new ApolloClient({
@@ -27,15 +29,15 @@ export default function App() {
       <BrowserRouter>
         <AppBridgeProvider>
           <QueryProvider>
-            {/* <NavigationMenu
+            <NavigationMenu
               navigationLinks={[
                 {
                   label: "Page Name",
                   destination: "/pagename",
                 },
               ]}
-            /> */}
-            <ApolloProvider client={client}>
+            />
+            <ApolloProvider  client={client}>
               <Routes pages={pages} />
             </ApolloProvider>
           </QueryProvider>
@@ -44,3 +46,4 @@ export default function App() {
     </PolarisProvider>
   );
 }
+
