@@ -25,21 +25,20 @@ function Index(){
        <ResourcePicker 
            resourceType="Product"
            open={modal.open}
-           selectMultiple={true}
            showVariants={false}
-           showHidden={true}
+           selectMultiple={true}
            onCancel={() => setmodal({open: false})}
            onSelection={(resources) => handleSelection(resources)}
         />
       <Layout>
         {emptyState ? 
           <EmptyState 
-          heading="Sample App"
-          action={{
-            content: 'Select Products',
-            onAction : () => setmodal({open: true}, console.log(modal))
-          }}
-          image={img}
+            heading="Sample App"
+            action={{
+              content: 'Select Products',
+              onAction : () => setmodal({open: true}, console.log(modal))
+            }}
+            image={img}
           >
             <p>Select Product</p>
           </EmptyState>

@@ -1,16 +1,15 @@
 import { BrowserRouter } from "react-router-dom";
 import { NavigationMenu } from "@shopify/app-bridge-react";
 import Routes from "./Routes";
-// import ApolloClient from '  ';
-// import { ApolloProvider } from '@apollo/react-hooks';
-import { ApolloProvider } from "@apollo/client";
-import ApolloClient from 'apollo-boost';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+
 
 
 const client = new ApolloClient({
   fetchOptions: {
-    creadentials: 'include'
-  }
+    credentials: 'include'
+  },
+  cache: new InMemoryCache(),
 })
 
 import {
@@ -25,25 +24,27 @@ export default function App() {
   const pages = import.meta.globEager("./pages/**/!(*.test.[jt]sx)*.([jt]sx)");
 
   return (
+    
     <PolarisProvider>
       <BrowserRouter>
         <AppBridgeProvider>
           <QueryProvider>
-            <NavigationMenu
+            {/* <NavigationMenu
               navigationLinks={[
                 {
                   label: "Page Name",
                   destination: "/pagename",
                 },
               ]}
-            />
-            <ApolloProvider  client={client}>
+            /> */}
+          <ApolloProvider client={client}>
               <Routes pages={pages} />
-            </ApolloProvider>
+          </ApolloProvider>
           </QueryProvider>
         </AppBridgeProvider>
       </BrowserRouter>
     </PolarisProvider>
   );
 }
+
 
