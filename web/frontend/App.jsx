@@ -1,8 +1,8 @@
 import { BrowserRouter } from "react-router-dom";
 import { NavigationMenu } from "@shopify/app-bridge-react";
 import Routes from "./Routes";
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
-
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from "@apollo/client";
 
 
 const client = new ApolloClient({
@@ -10,13 +10,19 @@ const client = new ApolloClient({
     credentials: 'include'
   },
   cache: new InMemoryCache(),
-})
+});
+
+
+console.log("client============",client)
 
 import {
   AppBridgeProvider,
   QueryProvider,
   PolarisProvider,
 } from "./components";
+
+
+
 
 export default function App() {
   // Any .tsx or .jsx files in /pages will become a route
@@ -25,6 +31,7 @@ export default function App() {
 
   return (
     
+  <ApolloProvider client={client}>
     <PolarisProvider>
       <BrowserRouter>
         <AppBridgeProvider>
@@ -37,13 +44,11 @@ export default function App() {
                 },
               ]}
             /> */}
-          <ApolloProvider client={client}>
               <Routes pages={pages} />
-          </ApolloProvider>
           </QueryProvider>
         </AppBridgeProvider>
       </BrowserRouter>
     </PolarisProvider>
+  </ApolloProvider>
   );
 }
-

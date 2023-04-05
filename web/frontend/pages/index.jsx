@@ -2,7 +2,7 @@ import { EmptyState, Layout, Modal, Page, TextContainer } from "@shopify/polaris
 import React,{ useCallback, useState } from "react";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import store from 'store-js';
-import ProductList from "../components/ResourceList";
+import ProductList from "../components/ProductList";
 
 function Index(){
   // dynemic img 
