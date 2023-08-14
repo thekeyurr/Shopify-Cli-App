@@ -57,6 +57,21 @@ app.get("/api/products/create", async (_req, res) => {
   res.status(status).send({ success: status === 200, error });
 });
 
+
+app.get("api/collections/433787502876"), async(_req, res)=>{
+  try {
+    const response = await shopify.api.rest.Collection.find({
+      session: res.locals.shopify.session,
+      id: 433787502876,
+    });
+
+    res.status(200).send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
+
 app.use(serveStatic(STATIC_PATH, { index: false }));
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {

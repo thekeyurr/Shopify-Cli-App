@@ -1,0 +1,21 @@
+<span>Hello</span>
+<br/>
+<p>{{ page_title }}</p>
+
+
+{% schema %}
+  {
+    "name": "Hello world",
+    "target": "section",
+    "stylesheet": "app.css",
+    "javascript": "app.js",
+    "settings": [
+      {
+        "label": "Color",
+        "id": "color",
+        "type": "color",
+        "default": "#000000"
+      }
+    ]
+  }
+{% endschema %}

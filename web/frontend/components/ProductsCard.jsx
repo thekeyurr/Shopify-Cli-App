@@ -49,6 +49,8 @@ export function ProductsCard() {
     }
   };
 
+
+  console.log("hey hello");
   return (
     <>
       {toastMarkup}
