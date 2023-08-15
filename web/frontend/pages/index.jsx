@@ -86,7 +86,7 @@ function Index(){
   const [modal, setmodal]= useState({open: false});
 
 
-  console.log("hello world");
+  console.log("hello world2");
 
   const fetchcollection =async ()=>{
     try {

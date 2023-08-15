@@ -4,9 +4,11 @@ import { readFileSync } from "fs";
 import express from "express";
 import serveStatic from "serve-static";
 
+
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
+
 
 const PORT = parseInt(process.env.BACKEND_PORT || process.env.PORT, 10);
 
@@ -32,7 +34,36 @@ app.post(
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js
 
+
 app.use("/api/*", shopify.validateAuthenticatedSession());
+// app.use(
+//   "/api/*",
+//   async (req, res, next) => {
+//     try {
+//       const sessionId = await shopify.api.session.getCurrentId({
+//         isOnline: shopify.config.useOnlineTokens,
+//         rawRequest: req,
+//         rawResponse: res,
+//       });
+//       const session = await shopify.config.sessionStorage.loadSession(
+//         sessionId
+//       );
+
+//       console.log("session========",session);
+//       const shop = req.query.shop || session?.shop;
+
+//       if (!shop) {
+//         return undefined;
+//       }
+//     } catch (e) {
+//       console.error(e);
+//     }
+
+//     next();
+//   },
+//   shopify.validateAuthenticatedSession()
+// );
+
 
 app.use(express.json());
 
@@ -40,6 +71,7 @@ app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({
     session: res.locals.shopify.session,
   });
+  console.log('countData=========>', countData);
   res.status(200).send(countData);
 });
 
@@ -58,18 +90,22 @@ app.get("/api/products/create", async (_req, res) => {
 });
 
 
-app.get("api/collections/433787502876"), async(_req, res)=>{
+app.get("/api/collections/433787502876", async (_req, res) => {
   try {
     const response = await shopify.api.rest.Collection.find({
-      session: res.locals.shopify.session,
+      session: res.locals.shopify.session, 
       id: 433787502876,
     });
+
+    console.log("response==============", response);
 
     res.status(200).send(response);
   } catch (error) {
     res.status(500).send(error);
   }
-}
+});
+
+
 
 
 app.use(serveStatic(STATIC_PATH, { index: false }));

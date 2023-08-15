@@ -13,8 +13,7 @@
   },
   "dependencies": {
     "@shopify/app": "^3.45.0",
-    "@shopify/cli": "^3.45.0",
-    "dotenv": "^16.3.1"
+    "@shopify/cli": "^3.45.0"
   },
   "author": "01"
 }
