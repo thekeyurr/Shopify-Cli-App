@@ -1,4 +1,5 @@
 // @ts-check
+// server side working file
 import { join } from "path";
 import { readFileSync } from "fs";
 import express from "express";
@@ -36,34 +37,6 @@ app.post(
 
 
 app.use("/api/*", shopify.validateAuthenticatedSession());
-// app.use(
-//   "/api/*",
-//   async (req, res, next) => {
-//     try {
-//       const sessionId = await shopify.api.session.getCurrentId({
-//         isOnline: shopify.config.useOnlineTokens,
-//         rawRequest: req,
-//         rawResponse: res,
-//       });
-//       const session = await shopify.config.sessionStorage.loadSession(
-//         sessionId
-//       );
-
-//       console.log("session========",session);
-//       const shop = req.query.shop || session?.shop;
-
-//       if (!shop) {
-//         return undefined;
-//       }
-//     } catch (e) {
-//       console.error(e);
-//     }
-
-//     next();
-//   },
-//   shopify.validateAuthenticatedSession()
-// );
-
 
 app.use(express.json());
 
@@ -98,6 +71,76 @@ app.get("/api/collections/433787502876", async (_req, res) => {
     });
 
     console.log("response==============", response);
+
+    res.status(200).send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+app.get('/api/orders', async (_req, res)=>{
+  try {
+    const response = await shopify.api.rest.Order.all({
+      session: res.locals.shopify.session,
+      status: "any",
+    });
+
+    res.status(200).send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+})
+
+app.get('/api/customers', async(_req, res)=>{
+
+  try {
+    const response = await shopify.api.rest.Customer.find({
+      session: res.locals.shopify.session,
+      id: 7144007401756,
+    });
+
+    res.status(200).send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+})
+
+
+// app.get('/api/checkouts/5a7d68affe475df29ac00a8429d3a022', async(_req, res)=>{
+//   try {
+//     // const checkout = new shopify.api.rest.Checkout({session: res.locals.shopify.session});
+//     // checkout.token = "5a7d68affe475df29ac00a8429d3a022";
+//     // await checkout.complete({});
+
+//     //   res.status(200).send(checkout);
+
+//     //   console.log("checkout=======",checkout);
+
+//     const response = await shopify.api.rest.Checkout.find({
+//       session: res.locals.shopify.session,
+//       token: "5a7d68affe475df29ac00a8429d3a022",
+//     });
+
+//     console.log("checkout=========", response); 
+
+//     res.status(200).send(response);
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// })
+
+app.get("/api/checkouts", async (_req, res) => {
+  try {
+
+    const token = "5a7d68affe475df29ac00a8429d3a022";
+    console.log("Fetching checkout with token:", token);
+
+    const response = await shopify.api.rest.Checkout.find({
+      session: res.locals.shopify.session,
+      token: token,
+    });
+
+    console.log("checkout================", await response);
 
     res.status(200).send(response);
   } catch (error) {
