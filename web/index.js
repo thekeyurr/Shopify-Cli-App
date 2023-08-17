@@ -44,7 +44,7 @@ app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({
     session: res.locals.shopify.session,
   });
-  console.log('countData=========>', countData);
+
   res.status(200).send(countData);
 });
 
@@ -63,65 +63,27 @@ app.get("/api/products/create", async (_req, res) => {
 });
 
 
-app.get("/api/collections/433787502876", async (_req, res) => {
-  try {
-    const response = await shopify.api.rest.Collection.find({
-      session: res.locals.shopify.session, 
-      id: 433787502876,
-    });
-
-    console.log("response==============", response);
-
-    res.status(200).send(response);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-app.get('/api/orders', async (_req, res)=>{
-  try {
-    const response = await shopify.api.rest.Order.all({
-      session: res.locals.shopify.session,
-      status: "any",
-    });
-
-    res.status(200).send(response);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-})
-
-app.get('/api/customers', async(_req, res)=>{
-
-  try {
-    const response = await shopify.api.rest.Customer.find({
-      session: res.locals.shopify.session,
-      id: 7144007401756,
-    });
-
-    res.status(200).send(response);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-})
-
-
-// app.get('/api/checkouts/5a7d68affe475df29ac00a8429d3a022', async(_req, res)=>{
+// app.get("/api/collections/433787502876", async (_req, res) => {
 //   try {
-//     // const checkout = new shopify.api.rest.Checkout({session: res.locals.shopify.session});
-//     // checkout.token = "5a7d68affe475df29ac00a8429d3a022";
-//     // await checkout.complete({});
-
-//     //   res.status(200).send(checkout);
-
-//     //   console.log("checkout=======",checkout);
-
-//     const response = await shopify.api.rest.Checkout.find({
-//       session: res.locals.shopify.session,
-//       token: "5a7d68affe475df29ac00a8429d3a022",
+//     const response = await shopify.api.rest.Collection.find({
+//       session: res.locals.shopify.session, 
+//       id: 433787502876,
 //     });
 
-//     console.log("checkout=========", response); 
+//     console.log("response==============", response);
+
+//     res.status(200).send(response);
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// });
+
+// app.get('/api/orders', async (_req, res)=>{
+//   try {
+//     const response = await shopify.api.rest.Order.all({
+//       session: res.locals.shopify.session,
+//       status: "any",
+//     });
 
 //     res.status(200).send(response);
 //   } catch (error) {
@@ -129,24 +91,158 @@ app.get('/api/customers', async(_req, res)=>{
 //   }
 // })
 
-app.get("/api/checkouts", async (_req, res) => {
+// app.get('/api/customers', async(_req, res)=>{
+
+//   try {
+//     const response = await shopify.api.rest.Customer.find({
+//       session: res.locals.shopify.session,
+//       id: 7144007401756,
+//     });
+
+//     res.status(200).send(response);
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// });
+
+// -----------------------------------------
+
+app.get('/api/products/create', async (req , res)=>{
+  if(!req?.body?.title){
+    return res.status(400).json({'message': 'field is required'});
+  }
+
+  let status = 200;
+  let error = null;
+
   try {
+    const session = res.locals.shopify.session;
+    const client = new shopify.api.clients.Graphql({session});
 
-    const token = "5a7d68affe475df29ac00a8429d3a022";
-    console.log("Fetching checkout with token:", token);
+    await client.query({
+      data:`
+        mutation{
+          productCreate(input: {title: ${req.body.title}, productType: "snowboard" , vendor:}){
+            product
+            id
+          }
+        }
+      `
+    })
+  } catch (error) {
+    console.log(`faild to process request ${error}`);
+    status = 500;
+    error = error.message
+  }
+  res.status(status).send({sucess : status === 200, error});
+});
 
-    const response = await shopify.api.rest.Checkout.find({
-      session: res.locals.shopify.session,
-      token: token,
+// -----------------------------------------
+
+app.get("/api/products" , async(req , res )=>{
+  try {
+    const session = res.locals.shopify.session;
+    const data = await shopify.api.rest.Product.all({session: session});
+    res.status(200).send(data);
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+// -----------------------------------------
+
+app.get('/api/orders' , async ( req , res )=>{
+  try {
+    
+    const session = res.locals.shopify.session;
+    const client = new shopify.api.clients.Graphql({session});
+
+    const queryString = `{
+      orders(first:50){
+        edges{
+
+        }node{
+          id
+          note
+          name
+          displayFinancialStatus
+        }
+      }
+    }`
+
+    const data = await client.query({
+      data: queryString
     });
 
-    console.log("checkout================", await response);
+    res.status(200).send({data});
 
+  } catch (error) {
+    res.status(200).send(error);
+  }
+});
+
+// ------------------------------------
+
+app.get('/api/collections/433787502876' , async ( req , res)=>{
+  try {
+    const response = await shopify.api.rest.Collection.find({
+            session: res.locals.shopify.session, 
+            id: 433787502876,
+    });
+
+    res.status(200).send(response);
+  } catch (error) {
+   res.status(500).send(error); 
+  }
+})
+
+
+// ------------------------------------
+
+app.get('/api/collection', async (req , res) =>{
+  try {
+    const session = res.locals.shopify.session;
+    const client = new shopify.api.clients.Graphql({session: session});
+
+    const response = await client.query ({
+      data: `query{
+        collections(first: 5){
+          edges{
+            node{
+              id
+              title
+              handle
+              updatedAt
+              productsCount
+              sortOrder
+            }
+          }
+        }
+      }`
+    })
     res.status(200).send(response);
   } catch (error) {
     res.status(500).send(error);
   }
-});
+})
+
+
+// app.get("/api/checkout", async (_req, res) => {
+//   const specificToken = "5a7d68affe475df29ac00a8429d3a022";
+
+//   try {
+//     const checkout = await shopify.api.rest.Checkout.find({
+//       session: res.locals.shopify.session,
+//       token: specificToken,
+//     });
+
+//     console.log("checkout=====",await checkout)
+
+//     res.status(200).send(checkout);
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// });
 
 
 
