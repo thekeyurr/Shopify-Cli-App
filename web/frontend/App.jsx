@@ -7,6 +7,7 @@ import {
   QueryProvider,
   PolarisProvider,
 } from "./components";
+import { DiscountProvider } from "./components/providers/DiscountProvider";
 
 export default function App() {
   // Any .tsx or .jsx files in /pages will become a route
@@ -14,21 +15,29 @@ export default function App() {
   const pages = import.meta.globEager("./pages/**/!(*.test.[jt]sx)*.([jt]sx)");
 
 
+
   return (
     <PolarisProvider>
       <BrowserRouter>
         <AppBridgeProvider>
+        <DiscountProvider>
           <QueryProvider>
             <NavigationMenu
               navigationLinks={[
                 {
-                  label: "Home",
+                  label: "Page name",
                   destination: "/pagename",
-                }
+                },
+                 {
+                  label: "Create discount",
+                  destination: "/discount",
+                },
               ]}
             />
             <Routes pages={pages} />
           </QueryProvider>
+
+          </DiscountProvider>
         </AppBridgeProvider>
       </BrowserRouter>
     </PolarisProvider>

@@ -10,6 +10,34 @@ import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 
+// discount method logic
+
+const CREATE_CODE_MUTATION = `
+  mutation CreateCodeDiscount($discount: DiscountCodeAppInput!) {
+    discountCreate: discountCodeAppCreate(codeAppDiscount: $discount) {
+      userErrors {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+const CREATE_AUTOMATIC_MUTATION = `
+  mutation CreateAutomaticDiscount($discount: DiscountAutomaticAppInput!) {
+    discountCreate: discountAutomaticAppCreate(
+      automaticAppDiscount: $discount
+    ) {
+      userErrors {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
 
 const PORT = parseInt(process.env.BACKEND_PORT || process.env.PORT, 10);
 
@@ -63,168 +91,193 @@ app.get("/api/products/create", async (_req, res) => {
 });
 
 
-// app.get("/api/collections/433787502876", async (_req, res) => {
-//   try {
-//     const response = await shopify.api.rest.Collection.find({
-//       session: res.locals.shopify.session, 
-//       id: 433787502876,
-//     });
-
-//     console.log("response==============", response);
-
-//     res.status(200).send(response);
-//   } catch (error) {
-//     res.status(500).send(error);
-//   }
-// });
-
-// app.get('/api/orders', async (_req, res)=>{
-//   try {
-//     const response = await shopify.api.rest.Order.all({
-//       session: res.locals.shopify.session,
-//       status: "any",
-//     });
-
-//     res.status(200).send(response);
-//   } catch (error) {
-//     res.status(500).send(error);
-//   }
-// })
-
-// app.get('/api/customers', async(_req, res)=>{
-
-//   try {
-//     const response = await shopify.api.rest.Customer.find({
-//       session: res.locals.shopify.session,
-//       id: 7144007401756,
-//     });
-
-//     res.status(200).send(response);
-//   } catch (error) {
-//     res.status(500).send(error);
-//   }
-// });
-
-// -----------------------------------------
-
-app.get('/api/products/create', async (req , res)=>{
-  if(!req?.body?.title){
-    return res.status(400).json({'message': 'field is required'});
-  }
-
-  let status = 200;
-  let error = null;
-
-  try {
-    const session = res.locals.shopify.session;
-    const client = new shopify.api.clients.Graphql({session});
-
-    await client.query({
-      data:`
-        mutation{
-          productCreate(input: {title: ${req.body.title}, productType: "snowboard" , vendor:}){
-            product
-            id
-          }
-        }
-      `
-    })
-  } catch (error) {
-    console.log(`faild to process request ${error}`);
-    status = 500;
-    error = error.message
-  }
-  res.status(status).send({sucess : status === 200, error});
-});
-
-// -----------------------------------------
-
-app.get("/api/products" , async(req , res )=>{
-  try {
-    const session = res.locals.shopify.session;
-    const data = await shopify.api.rest.Product.all({session: session});
-    res.status(200).send(data);
-  } catch (error) {
-    console.log(error);
-  }
-})
-
-// -----------------------------------------
-
-app.get('/api/orders' , async ( req , res )=>{
-  try {
-    
-    const session = res.locals.shopify.session;
-    const client = new shopify.api.clients.Graphql({session});
-
-    const queryString = `{
-      orders(first:50){
-        edges{
-
-        }node{
-          id
-          note
-          name
-          displayFinancialStatus
-        }
-      }
-    }`
-
-    const data = await client.query({
-      data: queryString
-    });
-
-    res.status(200).send({data});
-
-  } catch (error) {
-    res.status(200).send(error);
-  }
-});
-
-// ------------------------------------
-
-app.get('/api/collections/433787502876' , async ( req , res)=>{
+app.get("/api/collections/433787502876", async (_req, res) => {
   try {
     const response = await shopify.api.rest.Collection.find({
-            session: res.locals.shopify.session, 
-            id: 433787502876,
+      session: res.locals.shopify.session, 
+      id: 433787502876,
     });
+
+    console.log("response==============", response);
 
     res.status(200).send(response);
   } catch (error) {
-   res.status(500).send(error); 
+    res.status(500).send(error);
   }
-})
+});
 
-
-// ------------------------------------
-
-app.get('/api/collection', async (req , res) =>{
+app.get('/api/orders', async (_req, res)=>{
   try {
-    const session = res.locals.shopify.session;
-    const client = new shopify.api.clients.Graphql({session: session});
+    const response = await shopify.api.rest.Order.all({
+      session: res.locals.shopify.session,
+      status: "any",
+    });
 
-    const response = await client.query ({
-      data: `query{
-        collections(first: 5){
-          edges{
-            node{
-              id
-              title
-              handle
-              updatedAt
-              productsCount
-              sortOrder
-            }
-          }
-        }
-      }`
-    })
     res.status(200).send(response);
   } catch (error) {
     res.status(500).send(error);
   }
 })
+
+app.get('/api/customers', async(_req, res)=>{
+
+  try {
+    const response = await shopify.api.rest.Customer.find({
+      session: res.locals.shopify.session,
+      id: 7144007401756,
+    });
+
+    res.status(200).send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// discount method logic
+const runDiscountMutation = async ( res, req , mutation) => {
+  const session = res.locals.shopify.session;
+
+  const client = new shopify.api.clients.Graphql({session});
+
+  const data = await client.query({
+    data: {
+      query: mutation,
+      variables: req.body,
+
+    },
+  });
+  res.send(data.body);
+}
+
+app.post("/api/discounts/code", async (req, res) => {
+  await runDiscountMutation(req, res, CREATE_CODE_MUTATION);
+});
+
+app.post("api/discounts/automatic", async (req, res) => {
+  await runDiscountMutation(req, res, CREATE_AUTOMATIC_MUTATION);
+});
+
+
+// -----------------------------------------
+
+// app.get('/api/products/create', async (req , res)=>{
+//   if(!req?.body?.title){
+//     return res.status(400).json({'message': 'field is required'});
+//   }
+
+//   let status = 200;
+//   let error = null;
+
+//   try {
+//     const session = res.locals.shopify.session;
+//     const client = new shopify.api.clients.Graphql({session});
+
+//     await client.query({
+//       data:`
+//         mutation{
+//           productCreate(input: {title: ${req.body.title}, productType: "snowboard" , vendor:}){
+//             product
+//             id
+//           }
+//         }
+//       `
+//     })
+//   } catch (error) {
+//     console.log(`faild to process request ${error}`);
+//     status = 500;
+//     error = error.message
+//   }
+//   res.status(status).send({sucess : status === 200, error});
+// });
+
+// -----------------------------------------
+
+// app.get("/api/products" , async(req , res )=>{
+//   try {
+//     const session = res.locals.shopify.session;
+//     const data = await shopify.api.rest.Product.all({session: session});
+//     res.status(200).send(data);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// })
+
+// -----------------------------------------
+
+// app.get('/api/orders' , async ( req , res )=>{
+//   try {
+    
+//     const session = res.locals.shopify.session;
+//     const client = new shopify.api.clients.Graphql({session});
+
+//     const queryString = `{
+//       orders(first:50){
+//         edges{
+
+//         }node{
+//           id
+//           note
+//           name
+//           displayFinancialStatus
+//         }
+//       }
+//     }`
+
+//     const data = await client.query({
+//       data: queryString
+//     });
+
+//     res.status(200).send({data});
+
+//   } catch (error) {
+//     res.status(200).send(error);
+//   }
+// });
+
+// ------------------------------------
+
+// app.get('/api/collections/433787502876' , async ( req , res)=>{
+//   try {
+//     const response = await shopify.api.rest.Collection.find({
+//             session: res.locals.shopify.session, 
+//             id: 433787502876,
+//     });
+
+//     res.status(200).send(response);
+//   } catch (error) {
+//    res.status(500).send(error); 
+//   }
+// })
+
+
+// ------------------------------------
+
+// app.get('/api/collection', async (req , res) =>{
+//   try {
+//     const session = res.locals.shopify.session;
+//     const client = new shopify.api.clients.Graphql({session: session});
+
+//     const response = await client.query ({
+//       data: `query{
+//         collections(first: 5){
+//           edges{
+//             node{
+//               id
+//               title
+//               handle
+//               updatedAt
+//               productsCount
+//               sortOrder
+//             }
+//           }
+//         }
+//       }`
+//     })
+//     res.status(200).send(response);
+//   } catch (error) {
+//     res.status(500).send(error);
+//   }
+// })
 
 
 // app.get("/api/checkout", async (_req, res) => {
