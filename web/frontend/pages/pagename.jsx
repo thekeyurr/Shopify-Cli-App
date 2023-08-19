@@ -395,6 +395,20 @@ const Discount = () => {
             },
           ]}
         />
+        {/* <PageActions
+            primaryAction={{
+              content: "Save discount",
+              onAction: submit,
+              disabled: !dirty,
+              loading: submitting,
+            }}
+            secondaryActions={[
+              {
+                content: "Discard",
+                onAction: () => onBreadcrumbAction(redirect, true),
+              },
+            ]}
+          /> */}
       </Layout.Section>
       </Layout>
       {showDiscountBox && (
@@ -421,6 +435,24 @@ const Discount = () => {
             </span>
           </div>
         </Card>
+        {/* custom data import */}
+        <Layout.Section>
+          <PageActions
+              primaryAction={{
+                content: "Save discount",
+                // onAction: submit,
+                // disabled: !dirty,
+                // loading: submitting,
+              }}
+              secondaryActions={[
+                {
+                  content: "Discard",
+                  onAction: () => onBreadcrumbAction(redirect, true),
+                },
+              ]}
+            />
+
+        </Layout.Section>
       </Page>
       )}
     </Page>

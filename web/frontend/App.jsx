@@ -32,6 +32,10 @@ export default function App() {
                   label: "Create discount",
                   destination: "/discount",
                 },
+                {
+                  label: "Test name",
+                  destination: "/test",
+                }
               ]}
             />
             <Routes pages={pages} />
