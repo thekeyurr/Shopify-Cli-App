@@ -11,9 +11,9 @@
     "generate": "shopify app generate",
     "deploy": "shopify app deploy"
   },
+  "author": "01",
   "dependencies": {
-    "@shopify/app": "^3.45.0",
-    "@shopify/cli": "^3.45.0"
-  },
-  "author": "01"
+    "@shopify/app": "^3.3.3",
+    "@shopify/cli": "^3.3.3"
+  }
 }
