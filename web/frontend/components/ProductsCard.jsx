@@ -6,15 +6,17 @@ import {
   DisplayText,
   TextStyle,
 } from "@shopify/polaris";
-import { Toast } from "@shopify/app-bridge-react";
+import { Toast, useNavigate } from "@shopify/app-bridge-react";
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 
 export function ProductsCard() {
   const emptyToastProps = { content: null };
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [toastProps, setToastProps] = useState(emptyToastProps);
   const fetch = useAuthenticatedFetch();
+  const navigate = useNavigate()
 
+  
   const {
     data,
     refetch: refetchProductCount,
@@ -48,9 +50,59 @@ export function ProductsCard() {
       });
     }
   };
+   //--------------------------------------------------------
+
+    const fetchCollection = async ()=>{
+      try {
+        const response =await fetch('/api/collections/433787502876');
+        console.log("Collection=============",await response.json());
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchCollection();
+
+    // -----------------------------------------------------
+
+    const fetchOrder = async ()=>{
+      try {
+        const response = await fetch('/api/orders');
+        console.log("Order=============",await response.json());
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchOrder();
+
+    // -------------------------------------------------------
+
+    const fetchCustomer = async()=>{
+      try {
+        const response = await fetch('/api/customers');
+        console.log("customers==============",await response.json());
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchCustomer();
+
+    // --------------------------------------------------
+
+    const fetchCart = async ()=>{
+      try {
+        const response = await fetch('/api/checkouts');
+        console.log("checkout data=============",await response.json());
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchCart();
 
 
-  console.log("hey hello");
   return (
     <>
       {toastMarkup}
@@ -62,20 +114,10 @@ export function ProductsCard() {
           onAction: handlePopulate,
           loading: isLoading,
         }}
+        secondaryFooterActions={[{content: 'View all products', onAction: () => navigate({name: 'Product'}, {target: 'new'})}]}
       >
         <TextContainer spacing="loose">
-          <p>
-            Sample products are created with a default title and price. You can
-            remove them at any time.
-          </p>
-          <Heading element="h4">
-            TOTAL PRODUCTS
-            <DisplayText size="medium">
-              <TextStyle variation="strong">
-                {isLoadingCount ? "-" : data.count}
-              </TextStyle>
-            </DisplayText>
-          </Heading>
+         
         </TextContainer>
       </Card>
     </>
