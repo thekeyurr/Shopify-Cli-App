@@ -93,8 +93,8 @@ export function ProductsCard() {
 
     const fetchCart = async ()=>{
       try {
-        const response = await fetch('/api/checkouts');
-        console.log("checkout data=============",await response.json());
+        const response = await fetch('/api/checkouts/5a7d68affe475df29ac00a8429d3a022');
+        console.log("Collection=============",await response.json());
       } catch (error) {
         console.log(error);
       }
@@ -102,6 +102,8 @@ export function ProductsCard() {
 
     fetchCart();
 
+
+    
 
   return (
     <>
